@@ -1,7 +1,6 @@
 import requests
 import unittest
 import json
-import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
 
@@ -12,16 +11,6 @@ def get_info(ip_or_hostname='', response_format=''):
 
 
 class TestFreeGeoIPRESTService(unittest.TestCase):
-    #def test_valid_json(self):
-    #    response_body = get_info('8.8.8.8', 'json')[1]
-    #    json_string = json.loads(response_body)
-    #    self.assertIsInstance(json_string, dict)
-    #
-    #def test_json_number_of_elements(self):
-    #    response_body = get_info('8.8.8.8', 'json')[1]
-    #    json_string = json.loads(response_body)
-    #    self.assertEqual(len(json_string.keys()), 11)
-
     def test_json_response(self):
         response_body = get_info('8.8.8.8', 'json')[1]
         json_actual = json.loads(response_body)
@@ -33,20 +22,9 @@ class TestFreeGeoIPRESTService(unittest.TestCase):
         sorted_json_expected = OrderedDict(sorted(json_expected.items()))
         self.assertEqual(sorted_json_expected, sorted_json_actual)
 
-    def test_valid_xml(self):
-        response_body = get_info('8.8.8.8', 'xml')[1]
-        xml_string = ET.fromstring(response_body)
-        self.assertIsInstance(xml_string, ET.Element)
-
-    def test_xml_number_of_elements(self):
-        response_body = get_info('8.8.8.8', 'xml')[1]
-        xml_string = ET.fromstring(response_body)
-        self.assertEqual(len(xml_string._children), 11)
-
     def test_xml_response(self):
         response_body = get_info('8.8.8.8', 'xml')[1]
-        xml_expected = '''
-        <?xml version="1.0" encoding="UTF-8"?>
+        xml_expected = '''<?xml version="1.0" encoding="UTF-8"?>
 <Response>
  <Ip>8.8.8.8</Ip>
  <CountryCode>US</CountryCode>
@@ -63,9 +41,10 @@ class TestFreeGeoIPRESTService(unittest.TestCase):
 '''
         self.assertEqual(xml_expected, response_body)
 
-    def test_csv_number_of_elements(self):
+    def test_csv_response(self):
         response_body = get_info('8.8.8.8', 'csv')[1]
-        self.assertEqual(len(response_body.split(',')), 11)
+        csv_expected = '"8.8.8.8","US","United States","","","","","38.0000","-97.0000","",""'
+        self.assertEqual(csv_expected, response_body)
 
     def test_invalid_response_format(self):
         response_code = get_info('8.8.8.8', 'invalid')[0]
@@ -90,6 +69,15 @@ class TestFreeGeoIPRESTService(unittest.TestCase):
         response = get_info()
         self.assertEqual(response[0], 200)
         self.assertIn('<!doctype html>', response[1])
+
+    def test_existing_hostname(self):
+        response_body = get_info('feod.lviv.ua', 'json')[1]
+        response_dict = json.loads(response_body)
+        self.assertEqual(response_dict['ip'], '89.184.73.151')
+
+    def test_inexisting_hostname(self):
+        response_code = get_info('minutevare.net', 'json')[0]
+        self.assertEqual(response_code, 404)
 
 
 if __name__ == '__main__':
