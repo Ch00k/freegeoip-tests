@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 def get_info(ip_or_hostname='', response_format=''):
-    url = 'http://freegeoip.net/%s/%s' % (response_format, ip_or_hostname)
+    url = 'http://minuteware.net:8908/%s/%s' % (response_format, ip_or_hostname)
     response = requests.get(url)
     return response.status_code, response.text
 
