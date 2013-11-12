@@ -43,7 +43,7 @@ class TestFreeGeoIPRESTService(unittest.TestCase):
 
     def test_csv_response(self):
         response_body = get_info('8.8.8.8', 'csv')[1]
-        csv_expected = '"8.8.8.8","US","United States","","","","","38.0000","-97.0000","",""'
+        csv_expected = '"8.8.8.8","US","United States","","","","","38.0000","-97.0000","",""\r\n'
         self.assertEqual(csv_expected, response_body)
 
     def test_invalid_response_format(self):
@@ -60,10 +60,8 @@ class TestFreeGeoIPRESTService(unittest.TestCase):
 
     def test_empty_ip(self):
         response_body = get_info('', 'json')[1]
-        my_ip = requests.get('http://jsonip.com/').text
-        my_ip = json.loads(my_ip)['ip']
         geo_ip = json.loads(response_body)['ip']
-        self.assertEqual(my_ip, geo_ip)
+        self.assertEqual(geo_ip, '127.0.0.1')
 
     def test_ip_and_response_format_empty(self):
         response = get_info()
